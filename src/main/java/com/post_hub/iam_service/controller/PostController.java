@@ -1,37 +1,35 @@
 package com.post_hub.iam_service.controller;
 
-import com.post_hub.iam_service.service.PostServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import com.post_hub.iam_service.model.constrants.ApiErrorMessage;
+import com.post_hub.iam_service.model.constrants.ApiLogMessage;
+import com.post_hub.iam_service.model.dto.post.PostDTO;
+import com.post_hub.iam_service.model.enteties.Post;
+import com.post_hub.iam_service.model.response.IamResponse;
+import com.post_hub.iam_service.repositories.PostRepository;
+import com.post_hub.iam_service.service.PostService;
+import com.post_hub.iam_service.utils.ApiUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
+@Slf4j
 @RestController
-@RequestMapping("/posts")
+@RequiredArgsConstructor
+@RequestMapping("${end.point.posts}")
 public class PostController {
 
-    private final PostServiceImpl postService;
+    private final PostService postService;
 
-    @Autowired
-    public PostController(PostServiceImpl postService) {
-        this.postService = postService;
-    }
+    @GetMapping("${end.point.id}")
+    public ResponseEntity<IamResponse<PostDTO>> getPostById(
+            @PathVariable(name = "id") Long postId) {
+        log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
-    @PostMapping("/create")
-    public ResponseEntity<String> createPost(@RequestBody Map<String, Object> requestBody) {
-        String title = (String) requestBody.get("title");
-        String content = (String) requestBody.get("content");
-
-        String postContent = "Title: " + title + "\nContent: " + content;
-
-        postService.createPost(postContent);
-
-        return new ResponseEntity<>("Post created with title: " +
-                title, HttpStatus.OK);
+        IamResponse<PostDTO> response = postService.getById(postId);
+        return ResponseEntity.ok(response);
     }
 }
